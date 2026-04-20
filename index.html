@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>IBS Smart Quiz</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+    font-family:'Segoe UI',sans-serif;
+    background:linear-gradient(-45deg,#0f172a,#1e3a8a,#0ea5e9,#9333ea);
+    background-size:400% 400%;
+    animation:bgMove 10s infinite alternate;
+    color:white;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+}
+
+@keyframes bgMove{
+    0%{background-position:0% 50%;}
+    100%{background-position:100% 50%;}
+}
+
+.app{width:100%;max-width:800px;}
+
+.card{
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(20px);
+    border-radius:20px;
+    padding:25px;
+    box-shadow:0 10px 40px rgba(0,0,0,0.6);
+    text-align:center;
+}
+
+h1{margin-bottom:20px;}
+
+button{
+    padding:12px 18px;
+    margin:10px;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    font-weight:bold;
+    background:linear-gradient(135deg,#38bdf8,#22c55e);
+    transition:0.3s;
+}
+
+button:hover{transform:scale(1.05);}
+
+.option{
+    background:rgba(255,255,255,0.1);
+    padding:12px;
+    margin:10px 0;
+    border-radius:12px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.option:hover{background:rgba(255,255,255,0.2);}
+
+.correct{background:#22c55e !important;}
+.wrong{background:#ef4444 !important;}
+
+.progress{height:8px;background:#334155;border-radius:10px;margin:10px 0;}
+#progressBar{height:100%;width:0%;background:#38bdf8;}
+
+.hidden{display:none;}
+</style>
+
+</head>
+
+<body>
+
+<div class="app">
+
+<h1>🚀 IBS Smart Quiz</h1>
+
+<div class="card" id="unitBox">
+<h2>Select Unit</h2>
+<button onclick="startQuiz('unit1')">Unit 1</button>
+<button onclick="startQuiz('unit4')">Unit 4</button>
+<button onclick="startQuiz('unit5')">Unit 5</button>
+</div>
+
+<div class="card hidden" id="quizBox">
+<div id="progressText"></div>
+<div class="progress"><div id="progressBar"></div></div>
+<h2 id="question"></h2>
+<div id="options"></div>
+<button id="nextBtn" onclick="nextQuestion()">Next</button>
+</div>
+
+<div class="card hidden" id="resultBox">
+<h2>🎉 Quiz Completed!</h2>
+<h3 id="finalScore"></h3>
+<button onclick="location.reload()">Restart</button>
+</div>
+
+</div>
+
+<script>
+
+// ===== FULL DATA =====
+const quizData = {
+
+// ===== UNIT 1 =====
+unit1: [
+{q:"What is the main role of technology in business growth?",o:["Increase manual work","Reduce efficiency","Improve productivity","Increase paperwork"],a:2},
+{q:"Engineering contributes to business by:",o:["Reducing innovation","Designing solutions","Avoiding automation","Limiting growth"],a:1},
+{q:"Information systems help in:",o:["Storing data only","Decision making","Ignoring data","Reducing profits"],a:1},
+{q:"Finance information systems are used for:",o:["Cooking","Accounting and budgeting","Playing games","Designing clothes"],a:1},
+{q:"What does MarTech stand for?",o:["Market Technology","Marketing Technology","Machine Technology","Manual Technology"],a:1},
+{q:"Marketing analytics helps to:",o:["Ignore customers","Understand customer behavior","Reduce sales","Avoid advertising"],a:1},
+{q:"HR analytics is used for:",o:["Hiring and performance evaluation","Cooking food","Driving vehicles","Building houses"],a:0},
+{q:"Recruitment analytics helps in:",o:["Selecting the right candidate","Increasing errors","Avoiding interviews","Reducing employees"],a:0},
+{q:"Operations technology focuses on:",o:["Entertainment","Production and processes","Fashion","Music"],a:1},
+{q:"Supply chain technology helps in:",o:["Managing product flow","Playing games","Writing books","Cooking food"],a:0},
+{q:"Quality management ensures:",o:["Poor products","High standards","No production","Waste increase"],a:1},
+{q:"Product design technology helps in:",o:["Creating new products","Destroying products","Ignoring customers","Reducing innovation"],a:0},
+{q:"CAD stands for:",o:["Computer Aided Design","Control and Design","Computer Analysis Data","Central Auto Design"],a:0},
+{q:"Data management is important for:",o:["Data loss","Data organization","Data confusion","Data ignorance"],a:1},
+{q:"Knowledge systems help in:",o:["Sharing information","Hiding data","Reducing learning","Avoiding decisions"],a:0},
+{q:"Communication platforms include:",o:["Email and video calls","Only books","Newspapers only","Radios only"],a:0},
+{q:"Collaboration tools are used for:",o:["Teamwork","Fighting","Isolation","Sleeping"],a:0},
+{q:"Remote work means:",o:["Working from office only","Working from home or anywhere","Not working","Traveling only"],a:1},
+{q:"Cybersecurity protects:",o:["Buildings","Data and systems","Roads","Vehicles"],a:1},
+{q:"A strong password helps in:",o:["Data theft","Data protection","Data loss","System failure"],a:1},
+{q:"Risk management involves:",o:["Ignoring risks","Identifying and controlling risks","Increasing risks","Avoiding planning"],a:1},
+{q:"Regulatory compliance means:",o:["Breaking rules","Following laws and regulations","Ignoring policies","Avoiding rules"],a:1},
+{q:"ERP systems are used for:",o:["Integrating business processes","Playing games","Cooking food","Writing stories"],a:0},
+{q:"CRM systems help in:",o:["Customer relationship management","Cooking recipes","Building roads","Playing sports"],a:0},
+{q:"Big data refers to:",o:["Small data","Large and complex data","No data","Printed data"],a:1},
+{q:"Cloud computing helps in:",o:["Local storage only","Online data storage","Paper storage","No storage"],a:1},
+{q:"Automation helps to:",o:["Increase manual work","Reduce human effort","Slow down work","Increase errors"],a:1},
+{q:"Artificial Intelligence is used for:",o:["Smart decision making","Ignoring data","Manual tasks only","Avoiding technology"],a:0},
+{q:"Blockchain technology is known for:",o:["Data insecurity","Secure transactions","Data loss","Slow processing"],a:1},
+{q:"Digital transformation means:",o:["Using technology to improve business","Avoiding technology","Using only paper","Reducing efficiency"],a:0}
+],
+
+// ===== UNIT 4 =====
+unit4: [
+{q:"What is digital transformation?",o:["Using only paper systems","Using technology to improve business","Avoiding computers","Reducing innovation"],a:1},
+{q:"A key driver of digital transformation is:",o:["Competition","Laziness","Ignorance","Manual work"],a:0},
+{q:"Computer systems are used in business to:",o:["Increase errors","Process information","Avoid work","Reduce speed"],a:1},
+{q:"Business architecture refers to:",o:["Building design","Structure of business processes","House planning","Road construction"],a:1},
+{q:"Enterprise systems help in:",o:["Integrating business functions","Reducing communication","Increasing confusion","Avoiding work"],a:0},
+{q:"ERP stands for:",o:["Enterprise Resource Planning","Easy Resource Planning","Electronic Resource Plan","Enterprise Ready Program"],a:0},
+{q:"ERP systems integrate:",o:["Only finance","Only HR","All departments","Only marketing"],a:2},
+{q:"CRM systems are used for:",o:["Managing customers","Managing buildings","Managing roads","Managing machines"],a:0},
+{q:"SCM stands for:",o:["Supply Chain Management","System Control Management","Software Control Model","Sales Control Method"],a:0},
+{q:"Integrated Management Systems combine:",o:["Different management systems","Only one system","No systems","Manual work"],a:0},
+{q:"Business Intelligence (BI) is used for:",o:["Data analysis","Cooking","Playing games","Sleeping"],a:0},
+{q:"Decision Support Systems (DSS) help in:",o:["Making decisions","Avoiding decisions","Increasing confusion","Ignoring data"],a:0},
+{q:"BI tools present data in the form of:",o:["Charts and reports","Stories","Songs","Movies"],a:0},
+{q:"Business analytics helps in:",o:["Predicting future trends","Ignoring data","Reducing knowledge","Avoiding planning"],a:0},
+{q:"Strategic decision making is:",o:["Short-term decision","Long-term decision","Random decision","No decision"],a:1},
+{q:"Cloud computing allows:",o:["Offline storage only","Online access to data","No storage","Paper storage"],a:1},
+{q:"Example of cloud service:",o:["Google Drive","Notebook","Pen","Blackboard"],a:0},
+{q:"Cloud systems reduce:",o:["Cost of hardware","Data usage","Business growth","Innovation"],a:0},
+{q:"E-commerce refers to:",o:["Buying and selling online","Buying offline","Selling in shops","Trading manually"],a:0},
+{q:"Example of e-commerce platform:",o:["Amazon","Classroom","Library","Playground"],a:0},
+{q:"Digital platforms connect:",o:["Buyers and sellers","Teachers and books","Roads and vehicles","Houses and people"],a:0},
+{q:"Online payment systems are used in:",o:["E-commerce","Agriculture","Cooking","Driving"],a:0},
+{q:"A case study is:",o:["A real-life example","A poem","A story","A game"],a:0},
+{q:"Case studies help in:",o:["Understanding practical situations","Avoiding learning","Increasing confusion","Reducing knowledge"],a:0},
+{q:"Enterprise applications are used in:",o:["Large organizations","Only homes","Only schools","Only farms"],a:0},
+{q:"MIS stands for:",o:["Management Information System","Machine Input System","Manual Information System","Main Integrated System"],a:0},
+{q:"MIS helps managers to:",o:["Make decisions","Avoid work","Ignore data","Reduce output"],a:0},
+{q:"SaaS stands for:",o:["Software as a Service","System as a Service","Software and System","Service and Software"],a:0},
+{q:"Cloud-based systems are:",o:["Flexible","Rigid","Manual","Slow"],a:0},
+{q:"Digital business models use:",o:["Technology platforms","Only paper","Manual tools","No systems"],a:0}
+],
+
+// ===== UNIT 5 =====
+unit5: [
+{q:"Digital business transformation means:",o:["Avoiding technology","Using digital tools to improve business","Using only paper","Reducing innovation"],a:1},
+{q:"Emerging technologies are:",o:["Old technologies","New and developing technologies","Outdated tools","Manual systems"],a:1},
+{q:"IoT stands for:",o:["Internet of Technology","Internet of Things","Integration of Tools","Internal Online Technology"],a:1},
+{q:"IoT connects:",o:["Only people","Devices through internet","Only computers","Only phones"],a:1},
+{q:"Example of IoT in business:",o:["Smart inventory system","Paper records","Manual billing","Chalkboard writing"],a:0},
+{q:"AI stands for:",o:["Automatic Input","Artificial Intelligence","Advanced Internet","Applied Information"],a:1},
+{q:"AI helps in:",o:["Ignoring data","Smart decision making","Reducing efficiency","Avoiding work"],a:1},
+{q:"Machine Learning is a part of:",o:["AI","IoT","ERP","SCM"],a:0},
+{q:"Machine learning systems improve by:",o:["Guessing","Learning from data","Avoiding data","Ignoring feedback"],a:1},
+{q:"Automation means:",o:["Manual work","Work done by machines","Slow work","No work"],a:1},
+{q:"Robotics is used in:",o:["Manual tasks","Repetitive operations","Avoiding production","Writing notes"],a:1},
+{q:"Automation helps to:",o:["Increase errors","Save time and cost","Reduce productivity","Increase manual work"],a:1},
+{q:"A digital twin is:",o:["Real person","Virtual model of a system","Physical machine","Paper design"],a:1},
+{q:"Digital twins are used for:",o:["Simulation and analysis","Cooking","Playing games","Writing books"],a:0},
+{q:"Blockchain is known for:",o:["Data insecurity","Secure transactions","Data loss","Manual records"],a:1},
+{q:"Blockchain stores data in:",o:["Single file","Blocks","Books","Papers"],a:1},
+{q:"Distributed ledger means:",o:["Central storage","Shared database","Private notebook","Offline storage"],a:1},
+{q:"Low-code platforms require:",o:["High coding","Less coding","No internet","Only manual work"],a:1},
+{q:"No-code platforms are used by:",o:["Only programmers","Non-technical users","Only engineers","Only managers"],a:1},
+{q:"Intelligent business systems use:",o:["Only paper","AI and data","No technology","Manual tools"],a:1},
+{q:"Smart enterprises are:",o:["Traditional companies","Technology-driven organizations","Manual businesses","Small shops only"],a:1},
+{q:"Industry use cases are:",o:["Theoretical examples","Real-life applications","Stories","Games"],a:1},
+{q:"Future business trends include:",o:["Less technology","More digitalization","No innovation","Manual systems"],a:1},
+{q:"Implementation roadmap means:",o:["Random planning","Step-by-step plan","No planning","Avoiding goals"],a:1},
+{q:"Management consideration includes:",o:["Ignoring risks","Planning and control","Avoiding decisions","No strategy"],a:1},
+{q:"Digital leadership requires:",o:["Avoiding technology","Adapting to change","Ignoring innovation","Reducing skills"],a:1},
+{q:"AI in business helps in:",o:["Better predictions","Increasing errors","Reducing data use","Avoiding decisions"],a:0},
+{q:"Robotics improves:",o:["Speed and accuracy","Errors","Delay","Confusion"],a:0},
+{q:"Cloud and IoT together help in:",o:["Real-time data access","Data loss","Manual work","Offline work"],a:0},
+{q:"Leading in the digital age means:",o:["Avoiding change","Using technology effectively","Ignoring innovation","Working manually"],a:1}
+]
+
+};
+
+// ===== LOGIC =====
+let current=[],index=0,score=0;
+
+function startQuiz(unit){
+    current=quizData[unit];
+    index=0;score=0;
+    unitBox.classList.add("hidden");
+    quizBox.classList.remove("hidden");
+    loadQuestion();
+}
+
+function loadQuestion(){
+    let q=current[index];
+    question.innerText=q.q;
+    progressText.innerText=`Question ${index+1}/${current.length}`;
+    progressBar.style.width=((index)/current.length)*100+"%";
+
+    options.innerHTML="";
+    q.o.forEach((opt,i)=>{
+        let div=document.createElement("div");
+        div.className="option";
+        div.innerText=opt;
+        div.onclick=()=>checkAnswer(i);
+        options.appendChild(div);
+    });
+
+    nextBtn.style.display="none";
+}
+
+function checkAnswer(i){
+    let correct=current[index].a;
+    let opts=document.getElementsByClassName("option");
+
+    for(let j=0;j<opts.length;j++){
+        if(j===correct) opts[j].classList.add("correct");
+        else if(j===i) opts[j].classList.add("wrong");
+        opts[j].onclick=null;
+    }
+
+    if(i===correct) score++;
+    nextBtn.style.display="block";
+}
+
+function nextQuestion(){
+    index++;
+    if(index<current.length) loadQuestion();
+    else{
+        quizBox.classList.add("hidden");
+        resultBox.classList.remove("hidden");
+        finalScore.innerText=`Score: ${score}/${current.length}`;
+    }
+}
+
+</script>
+
+</body>
+</html>
